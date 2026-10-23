@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "crown-siege",
+      "runtimeExecutable": "C:/Users/OJacq/AppData/Local/Programs/Python/Python312/python.exe",
+      "runtimeArgs": ["-m", "http.server", "8131"],
+      "port": 8131
+    }
+  ]
+}
