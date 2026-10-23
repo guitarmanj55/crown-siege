@@ -19,7 +19,7 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 ## State of play (read this first)
 - Release 1 built 2026-10-23. `npm test` passes 11 tests, among them headless AI-vs-AI battles and a scripted "sensible player" that beats easy every time and normal on at least 3 of 6 seeds (5/8 when probed; hard beat it 0/8).
 - Checked in the browser preview at 844x390: title (with an AI-vs-AI battle playing behind it), training through the buttons, drag to pan, minimap jump, lightning aim and cast with a real click, a win on Easy and a loss on Normal (end screens and saved records), pause on going to the background, and the portrait "turn your phone" prompt. No console errors from the game.
-- Not yet checked on a real iPhone: touch feel, audio unlock from the first tap, frame rate with a full army, safe-area insets, installing to the home screen. Not yet on GitHub (Oli to decide on publishing).
+- Not yet checked on a real iPhone: touch feel, audio unlock from the first tap, frame rate with a full army, safe-area insets, installing to the home screen. Published 2026-10-23: public repo https://github.com/guitarmanj55/crown-siege, live at https://guitarmanj55.github.io/crown-siege/ (GitHub Pages from `main`, root). The first Pages build stalled with no workflow run; `gh api -X POST repos/guitarmanj55/crown-siege/pages/builds` restarted it.
 - Balance notes: lightning was nerfed (it wiped whole armies when units bunched up in the lane); the AI only aims it at soldiers, never at miners. A full normal game runs about 15–20 minutes and two careful sides can stall (see backlog).
 
 ## Rules
@@ -55,4 +55,4 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 8. Per-unit-type commands or a second lane, if the single army order feels too thin.
 
 ## Release routine
-`npm test`, check in the browser preview as above, bump `CACHE` in `sw.js`, commit. Publishing to GitHub Pages follows the global CLAUDE.md (ask Oli before making the repo public).
+`npm test`, check in the browser preview as above, bump `CACHE` in `sw.js`, commit and `git push` (Pages redeploys from `main`; check the live URL).
