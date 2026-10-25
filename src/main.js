@@ -1,7 +1,7 @@
 // Crown Siege: wires the simulation, renderer, HUD, input and audio together.
 // The simulation runs at a fixed 60 Hz; the screen is redrawn every animation frame.
 import { createWorld, step, STEP } from './sim/world.js';
-import { train } from './sim/economy.js';
+import { train, dismissWorker } from './sim/economy.js';
 import { setStance } from './sim/orders.js';
 import { castSpell, spellBlock } from './sim/spells.js';
 import { UNIT_TYPES } from './sim/factions.js';
@@ -208,6 +208,11 @@ function doTrain(type) {
   if (train(world, PLAYER, type)) sfx('click');
   else sfx('denied');
 }
+function doDismiss() {
+  unlockAudio();
+  if (mode !== 'playing' || world.over) return;
+  sfx(dismissWorker(world, PLAYER) ? 'click' : 'denied');
+}
 function doStance(s) {
   unlockAudio();
   if (mode !== 'playing' || world.over) return;
@@ -229,6 +234,7 @@ function doCast(x) {
 
 const hud = createHud(PLAYER, {
   onTrain: doTrain,
+  onDismiss: doDismiss,
   onStance: doStance,
   onSpell: doSpell,
   onPause: () => { unlockAudio(); pause(); },

@@ -3,7 +3,7 @@
 Fantasy single-lane strategy game in the style of Stick War, for one player (Oli), played mostly as an iPhone home-screen app in landscape. Siblings: `gym-log`, `hangeul-lab`, `news-pocket`, `t212-pocket`.
 
 ## What it is
-Your castle keep on the left, the Horde's dark tower on the right; destroy theirs to win. Workers (dwarf miners / goblin diggers) carry gold from two mines to the keep, and tend a mana crystal in front of the keep. You train units and give the whole army one command: **Garrison** (shelter in the keep: they heal, add arrows, and miners keep working), **Defend** (hold a line in front of the base) or **Attack** (march on the tower). One spell: **lightning strike** (tap ⚡, then tap the battlefield; costs mana, then recharges). The computer plays the Horde on easy, normal or hard.
+Your castle keep on the left, the Horde's dark tower on the right; destroy theirs to win. Workers (dwarf miners / goblin diggers) carry gold from two mines to the keep, and tend a mana crystal in front of the keep. Workers and soldiers share one live population cap of 40 (`POP_CAP`; the dead and dismissed free their place). The button with the red minus beside the miner sends one home: a queued miner is cancelled for a full refund, otherwise the miner nearest the keep walks back and leaves, refunding half its cost (`dismissWorker`). You train units and give the whole army one command: **Garrison** (shelter in the keep: they heal, add arrows, and miners keep working), **Defend** (hold a line in front of the base) or **Attack** (march on the tower). One spell: **lightning strike** (tap ⚡, then tap the battlefield; costs mana, then recharges). The computer plays the Horde on easy, normal or hard.
 
 Factions: Kingdom (player; steel blues and golds) vs Horde of orcs and goblins (greens and rust). Both share the same stats in release 1; only names and looks differ.
 
@@ -17,7 +17,8 @@ Factions: Kingdom (player; steel blues and golds) vs Horde of orcs and goblins (
 All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attached shapes (helmets, shields, capes, weapons). No art files.
 
 ## State of play (read this first)
-- Release 1 built 2026-10-23. `npm test` passes 11 tests, among them headless AI-vs-AI battles and a scripted "sensible player" that beats easy every time and normal on at least 3 of 6 seeds (5/8 when probed; hard beat it 0/8).
+- Release 2 (2026-10-25): compact two-column title panel for short landscape screens (about 180px tall instead of 300), and sending miners home. Checked in the preview at 844x390 and 667x375.
+- Release 1 built 2026-10-23. `npm test` passes 12 tests, among them headless AI-vs-AI battles and a scripted "sensible player" that beats easy every time and normal on at least 3 of 6 seeds (5/8 when probed; hard beat it 0/8).
 - Checked in the browser preview at 844x390: title (with an AI-vs-AI battle playing behind it), training through the buttons, drag to pan, minimap jump, lightning aim and cast with a real click, a win on Easy and a loss on Normal (end screens and saved records), pause on going to the background, and the portrait "turn your phone" prompt. No console errors from the game.
 - Not yet checked on a real iPhone: touch feel, audio unlock from the first tap, frame rate with a full army, safe-area insets, installing to the home screen. Published 2026-10-23: public repo https://github.com/guitarmanj55/crown-siege, live at https://guitarmanj55.github.io/crown-siege/ (GitHub Pages from `main`, root). The first Pages build stalled with no workflow run; `gh api -X POST repos/guitarmanj55/crown-siege/pages/builds` restarted it.
 - Balance notes: lightning was nerfed (it wiped whole armies when units bunched up in the lane); the AI only aims it at soldiers, never at miners. A full normal game runs about 15–20 minutes and two careful sides can stall (see backlog).
@@ -39,10 +40,10 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 - `src/render/`: `rig.js` (skeleton, poses: idle, walk, swing, bow, throw, mine, die), `parts.js` (attached shapes and the eight looks), `draw.js` (sky, parallax, ground, keep, tower, mines, crystals, units, missiles), `fx.js` (particles, bolts, coin pops, flash), `camera.js` (pan, fling, shake, minimap).
 - `src/ui/`: `hud.js`, `input.js` (drag to pan, minimap, spell aiming), `menus.js`, `store.js`. `src/audio.js`: WebAudio synth effects.
 - `test/sim.test.js`: sim tests. `scripts/make_icons.ps1` renders `icons/`.
-- `.claude/launch.json` serves the folder on port 8131 with Python's `http.server`.
+- `.claude/launch.json` serves the folder on port 8131 with `scripts/serve.py` (Python's `http.server` with `Cache-Control: no-store`).
 
 ## Testing
-`npm test` (Node 24). Then serve the folder (`.claude/launch.json`, or `python -m http.server 8131` with the full Python path from the global CLAUDE.md) and check at a phone landscape size (844x390): title, a game to a win and a loss, lightning aim, pan and minimap, pause, portrait prompt, console clean. Python's server lets the browser cache modules, so after edits unregister the service worker or hard-reload.
+`npm test` (Node 24). Then serve the folder (`.claude/launch.json`, or `scripts/serve.py` with the full Python path from the global CLAUDE.md) and check at a phone landscape size (844x390): title, a game to a win and a loss, lightning aim, pan and minimap, pause, portrait prompt, console clean. The dev server sends no-store, but unregister the service worker after edits. While the browser pane is in the background its frames stop, so the HUD and world freeze; check `window.__crown.world` rather than the HUD then.
 
 ## Backlog (release 2 and later)
 1. Check on the real iPhone (see State of play) and tune touch, frame rate and audio levels.

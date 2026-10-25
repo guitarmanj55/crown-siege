@@ -1,6 +1,6 @@
 // In-game HUD: resources, train buttons with queue badges, army commands and the lightning button.
 import { STATS, FACTIONS, SPELLS, UNIT_TYPES } from '../sim/factions.js';
-import { trainBlock, popUsed, POP_CAP } from '../sim/economy.js';
+import { trainBlock, popUsed, POP_CAP, workerCount } from '../sim/economy.js';
 import { spellBlock } from '../sim/spells.js';
 import { drawUnitFigure } from '../render/draw.js';
 import { LOOKS } from '../render/parts.js';
@@ -25,6 +25,14 @@ export function drawIcon(canvas, type) {
 export function createHud(player, handlers) {
   const train = $('#train');
   const buttons = {};
+  // Send a miner home, to free its population place for a soldier.
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'unitBtn dismiss';
+  dismissBtn.setAttribute('aria-label', `Send a ${FACTIONS[player].units.worker.name} home`);
+  dismissBtn.innerHTML = '<canvas></canvas><i class="minus"></i><span class="cost"></span>';
+  dismissBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); handlers.onDismiss(); });
+  const dismissCount = dismissBtn.querySelector('.cost');
+  drawIcon(dismissBtn.querySelector('canvas'), 'worker');
   for (const type of UNIT_TYPES) {
     const s = STATS[type];
     const b = document.createElement('button');
@@ -35,6 +43,7 @@ export function createHud(player, handlers) {
     train.appendChild(b);
     drawIcon(b.querySelector('canvas'), type);
     buttons[type] = { el: b, q: b.querySelector('.q'), bar: b.querySelector('.bar'), state: {} };
+    if (type === 'worker') train.appendChild(dismissBtn);
   }
   const cmds = [...document.querySelectorAll('#cmds [data-stance]')];
   for (const c of cmds) c.addEventListener('pointerdown', (e) => { e.preventDefault(); handlers.onStance(c.dataset.stance); });
@@ -66,6 +75,9 @@ export function createHud(player, handlers) {
       const w = Math.round(k * 100) + '%';
       if (b.state.w !== w) { b.state.w = w; b.bar.style.width = w; }
     }
+    const miners = workerCount(world, player) + (counts.worker || 0);
+    set('miners', dismissCount, `${miners} ⛏`);
+    cls('dismiss', dismissBtn, 'off', miners === 0);
     for (const c of cmds) cls('s' + c.dataset.stance, c, 'on', f.stance === c.dataset.stance);
     let inside = 0;
     for (const u of world.units) if (u.inside && u.faction === player) inside++;

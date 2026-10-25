@@ -112,10 +112,10 @@ export function step(world, dt = STEP) {
     const f = world.factions[id];
     if (f.ai) stepAI(world, id, dt);
   }
-  // Remove corpses once their fall has played.
-  if (world.units.some((u) => u.state === 'dead' && u.deadT > 2.5)) {
+  // Remove corpses once their fall has played, and miners who have gone home.
+  if (world.units.some((u) => u.gone || (u.state === 'dead' && u.deadT > 2.5))) {
     world.units = world.units.filter((u) => {
-      if (u.state === 'dead' && u.deadT > 2.5) { world.unitById.delete(u.id); return false; }
+      if (u.gone || (u.state === 'dead' && u.deadT > 2.5)) { world.unitById.delete(u.id); return false; }
       return true;
     });
   }

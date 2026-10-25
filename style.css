@@ -86,7 +86,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ---------- screens ---------- */
 .screen {
-  position: fixed; inset: 0; display: grid; place-items: center; padding: 12px calc(12px + var(--r)) calc(12px + var(--b)) calc(12px + var(--l));
+  position: fixed; inset: 0; display: grid; place-items: center; padding: calc(10px + var(--t)) calc(12px + var(--r)) calc(10px + var(--b)) calc(12px + var(--l));
   background: radial-gradient(ellipse at center, rgba(10, 8, 20, 0.25), rgba(10, 8, 20, 0.7));
 }
 .panel {
@@ -117,7 +117,18 @@ h2 { font-size: 26px; }
 .stats dd { margin: 0; text-align: left; font-variant-numeric: tabular-nums; }
 
 #title { background: linear-gradient(90deg, rgba(10, 8, 20, 0.55), rgba(10, 8, 20, 0.1) 60%); justify-items: start; }
-#title .panel { margin-left: 4%; }
+#title .panel { margin-left: 2%; }
+/* Landscape phones: brand on the left, controls on the right, so the panel stays short. */
+.titlePanel { display: grid; gap: 10px 22px; align-items: center; }
+.titlePanel .record { margin-top: 6px; }
+.titlePanel .tag { margin-bottom: 0; }
+.titlePanel .big { width: 100%; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .titlePanel { grid-template-columns: 1fr auto; width: min(600px, 100%); text-align: left; padding: 14px 20px; }
+  .titlePanel h1 { font-size: 34px; line-height: 1.05; }
+  .titlePanel .diff, .titlePanel .row { justify-content: stretch; }
+  .titlePanel .diff button, .titlePanel .row .small { flex: 1; padding: 0 10px; white-space: nowrap; }
+}
 
 #rotate { position: fixed; inset: 0; display: none; place-items: center; align-content: center; gap: 12px; background: #1c1736; color: var(--ink); text-align: center; z-index: 10; }
 #rotate svg { width: 72px; height: 72px; color: var(--accent); }
@@ -129,7 +140,16 @@ h2 { font-size: 26px; }
   .panel { padding: 12px 18px; }
   .big { min-height: 46px; margin: 2px 0 6px; }
 }
+.unitBtn.dismiss { width: 46px; }
+.unitBtn.dismiss canvas { opacity: 0.6; }
+.unitBtn.dismiss .minus {
+  position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #c8553d;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.unitBtn.dismiss .minus::after { content: ""; position: absolute; left: 4px; right: 4px; top: 7.5px; height: 2px; border-radius: 1px; background: #fff; }
+.unitBtn.dismiss .cost { color: var(--muted); }
 @media (max-width: 700px) and (orientation: landscape) {
   .unitBtn, .cmd { width: 52px; }
+  .unitBtn.dismiss { width: 44px; }
   .res { max-width: 30%; }
 }

@@ -10,10 +10,11 @@ export const MANA_PASSIVE = 0.5; // per second, from the crystal on its own
 export const MANA_PER_WORKER = 0.9; // per second, per worker tending the crystal
 export const CRYSTAL_CAP = 2;
 export const GOLD_PASSIVE = 1.5; // per second, the treasury's trickle, so a side whose miners all die can still rebuild
+export const DISMISS_REFUND = 0.5; // share of a miner's cost given back when sent home
 
 export function popUsed(world, faction) {
   let n = 0;
-  for (const u of world.units) if (u.faction === faction && u.state !== 'dead') n += STATS[u.type].pop;
+  for (const u of world.units) if (u.faction === faction && u.state !== 'dead' && !u.leaving) n += STATS[u.type].pop;
   for (const q of world.factions[faction].queue) n += STATS[q.type].pop;
   return n;
 }
@@ -37,6 +38,42 @@ export function train(world, faction, type) {
   f.gold -= s.cost.gold;
   f.mana -= s.cost.mana;
   f.queue.push({ type, t: 0 });
+  return true;
+}
+
+/** Miners that could be sent home: alive, not already leaving. */
+export function workerCount(world, faction) {
+  let n = 0;
+  for (const u of world.units) if (u.faction === faction && u.type === 'worker' && u.state !== 'dead' && !u.leaving) n++;
+  return n;
+}
+
+/**
+ * Send one miner home to free its population place. A queued miner is cancelled first (full refund);
+ * otherwise the miner nearest the keep walks back, drops what it carries, and leaves (half refund now).
+ */
+export function dismissWorker(world, faction) {
+  const f = world.factions[faction];
+  const cost = STATS.worker.cost.gold;
+  for (let i = f.queue.length - 1; i >= 0; i--) {
+    if (f.queue[i].type !== 'worker') continue;
+    f.queue.splice(i, 1);
+    f.gold += cost;
+    return true;
+  }
+  let pick = null;
+  let best = Infinity;
+  for (const u of world.units) {
+    if (u.faction !== faction || u.type !== 'worker' || u.state === 'dead' || u.leaving) continue;
+    const d = Math.abs(u.x - f.buildingX) + (u.carry ? 2000 : 0);
+    if (d < best) { best = d; pick = u; }
+  }
+  if (!pick) return false;
+  pick.leaving = true;
+  pick.job = null;
+  const refund = cost * DISMISS_REFUND;
+  f.gold += refund;
+  world.events.push({ type: 'coin', faction, x: f.buildingX, amount: refund });
   return true;
 }
 
@@ -121,6 +158,18 @@ export function moveToward(u, x, speed, dt) {
 export function stepWorker(world, u, dt) {
   const f = world.factions[u.faction];
   const speed = STATS.worker.speed;
+  if (u.leaving) {
+    if (moveToward(u, f.buildingX, speed * 1.2, dt)) {
+      if (u.carry) {
+        const g = u.carry * f.incomeMul;
+        f.gold += g;
+        f.stats.gold += g;
+        world.events.push({ type: 'coin', faction: u.faction, x: u.x, amount: Math.round(g) });
+      }
+      u.gone = true;
+    }
+    return;
+  }
   if (!u.job) u.job = pickJob(world, u.faction);
   if (u.job === 'crystal') {
     const tx = f.crystalX + (u.jitter - 0.5) * 30;

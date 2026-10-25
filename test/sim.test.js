@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, step, countUnits, STEP } from '../src/sim/world.js';
-import { train, trainBlock, popUsed, spawnUnit, POP_CAP } from '../src/sim/economy.js';
+import { train, trainBlock, popUsed, spawnUnit, dismissWorker, workerCount, POP_CAP } from '../src/sim/economy.js';
 import { setStance } from '../src/sim/orders.js';
 import { castSpell, spellBlock } from '../src/sim/spells.js';
 import { SPELLS, STATS } from '../src/sim/factions.js';
@@ -39,6 +39,29 @@ test('training costs gold (and mana for tanks), takes time, and respects populat
   for (let i = 0; i < POP_CAP; i++) spawnUnit(p, 'kingdom', 'melee');
   assert.equal(popUsed(p, 'kingdom'), POP_CAP);
   assert.equal(trainBlock(p, 'kingdom', 'melee'), 'pop');
+});
+
+test('sending a miner home frees its population place and refunds gold', () => {
+  const w = createWorld({ gold: 0, workers: 3 });
+  // A queued miner is cancelled first, with a full refund.
+  w.factions.kingdom.gold = STATS.worker.cost.gold;
+  assert.ok(train(w, 'kingdom', 'worker'));
+  assert.equal(popUsed(w, 'kingdom'), 4);
+  assert.ok(dismissWorker(w, 'kingdom'));
+  assert.equal(w.factions.kingdom.queue.length, 0);
+  assert.equal(w.factions.kingdom.gold, STATS.worker.cost.gold);
+  // Then a living miner walks home: its place is free at once, and it leaves the world at the keep.
+  w.factions.kingdom.gold = 0;
+  run(w, 5);
+  const before = w.factions.kingdom.gold;
+  assert.ok(dismissWorker(w, 'kingdom'));
+  assert.equal(workerCount(w, 'kingdom'), 2);
+  assert.equal(popUsed(w, 'kingdom'), 2);
+  assert.equal(w.factions.kingdom.gold, before + STATS.worker.cost.gold / 2);
+  run(w, 20);
+  assert.equal(countUnits(w, 'kingdom', 'worker'), 2);
+  assert.ok(dismissWorker(w, 'kingdom') && dismissWorker(w, 'kingdom'));
+  assert.equal(dismissWorker(w, 'kingdom'), false);
 });
 
 test('garrison hides the army in the keep while workers keep mining; defend holds the line; attack marches', () => {
