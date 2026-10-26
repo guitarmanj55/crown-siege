@@ -1,7 +1,7 @@
 // Unit stats, costs, looks and attacks per faction, as data.
 // Release 1: both factions share the same stats (STATS); only names and looks differ.
 
-export const UNIT_TYPES = ['worker', 'melee', 'ranged', 'tank', 'mage'];
+export const UNIT_TYPES = ['worker', 'melee', 'ranged', 'tank', 'mage', 'giant'];
 
 // speed in world units/s, cooldown in s, range/aggro in world units, trainTime in s.
 export const STATS = {
@@ -17,6 +17,9 @@ export const STATS = {
   mage: { hp: 70, armor: 0, speed: 48, damage: 22, range: 200, aggro: 260, cooldown: 2.6,
     cost: { gold: 125, mana: 30 }, pop: 1, trainTime: 6, projectile: true, projSpeed: 300,
     magic: true, splash: 48, splashMul: 0.6 },
+  // Giant: slow and huge; every blow also stomps the foes beside its target.
+  giant: { hp: 720, armor: 3, speed: 34, damage: 38, range: 34, aggro: 210, cooldown: 2.0,
+    cost: { gold: 250, mana: 80 }, pop: 3, trainTime: 10, splash: 44, splashMul: 0.5 },
 };
 
 export const SPELLS = {
@@ -40,6 +43,7 @@ export const FACTIONS = {
       ranged: { name: 'Elf Archer', look: 'elf' },
       tank: { name: 'Shield Knight', look: 'knight' },
       mage: { name: 'Battle Wizard', look: 'wizard' },
+      giant: { name: 'Stone Golem', look: 'golem' },
     },
   },
   horde: {
@@ -58,6 +62,7 @@ export const FACTIONS = {
       ranged: { name: 'Goblin Spear-thrower', look: 'goblinSpear' },
       tank: { name: 'Armoured Brute', look: 'brute' },
       mage: { name: 'Orc Shaman', look: 'shaman' },
+      giant: { name: 'Cave Troll', look: 'troll' },
     },
   },
 };

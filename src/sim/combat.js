@@ -135,6 +135,12 @@ function resolveHit(world, u) {
   } else if (Math.abs(t.x - u.x) <= s.range + 24) {
     damageUnit(world, t, s.damage, u.faction);
     world.events.push({ type: 'hit', faction: u.faction, unit: u.type, x: (t.x + u.x) / 2, z: t.z });
+    if (s.splash) {
+      for (const v of unitsNear(world, foe, t.x, s.splash)) {
+        if (v !== t && v.state !== 'dead') damageUnit(world, v, s.damage * s.splashMul, u.faction);
+      }
+      world.events.push({ type: 'stomp', faction: u.faction, x: t.x });
+    }
   }
 }
 

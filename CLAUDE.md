@@ -14,10 +14,12 @@ Factions: Kingdom (player; steel blues and golds) vs Horde of orcs and goblins (
 | ranged | Elf Archer | Goblin Spear-thrower | 100 gold |
 | tank | Shield Knight | Armoured Brute | 150 gold + 40 mana, 2 pop |
 | mage | Battle Wizard | Orc Shaman | 125 gold + 30 mana |
+| giant | Stone Golem | Cave Troll | 250 gold + 80 mana, 3 pop |
 
 All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attached shapes (helmets, shields, capes, weapons). No art files.
 
 ## State of play (read this first)
+- Release 4 (2026-10-26): **Stone Golem / Cave Troll** giant (250 gold + 80 mana, 3 pop, key 6; 720 HP, armour 3, slow, 38 damage and every blow stomps 50% onto foes within 44 units; front of the line). The AI trains giants (10% of its mix). Probe with the scripted player (mage and giant in its mix), 8 seeds: easy 8/8 (3.5 min), normal 8/8 (7-15 min), hard 5/8 (several 30-minute stalls); hard used to be 0/8, so hard may now be a little soft against a good player. `npm test` passes 15 tests. Fixed a stray non-UTF-8 byte in `fx.js` from release 3 (Python on Windows: always pass `encoding='utf-8'` when editing files). Checked in the preview at 667x375 (six train buttons fit); not checked on a real iPhone. The `/next-release` skill lives in `~/.claude/skills/next-release`.
 - Release 3 (2026-10-26): **Battle Wizard / Orc Shaman** (125 gold + 30 mana, key 5; slow orb that ignores armour and splashes 60% to foes within 48 units; fragile, stands behind the line), and pacing: buildings 2400 HP, plus a **siege ramp** (from 8:00 buildings take +100% damage per further 2 minutes, `siegeMul` in `combat.js`, with a "walls begin to crack" message) so stalemates end. The AI trains mages (13% of its mix). Probe over 8 seeds with a scripted player using mages: beats easy 8/8 (3.5 min), normal 8/8 (7–21 min; before, 5/8 with three 30-minute stalls); hard 0/8 (mostly stalls, since the probe's lightning kills Horde miners). `npm test` passes 14 tests. Also guards `drawSky` against a non-finite frame while resizing (it threw and would stop the loop). Checked in the preview at 844x390 and 667x375 (five train buttons fit); not checked on a real iPhone.
 - Release 2 (2026-10-25): compact two-column title panel for short landscape screens (about 180px tall instead of 300), and sending miners home. Checked in the preview at 844x390 and 667x375.
 - Release 1 built 2026-10-23. `npm test` passes 12 tests, among them headless AI-vs-AI battles and a scripted "sensible player" that beats easy every time and normal on at least 3 of 6 seeds (5/8 when probed; hard beat it 0/8).
@@ -51,7 +53,7 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 1. Check on the real iPhone (see State of play) and tune touch, frame rate and audio levels.
 2. Pacing: partly done in release 3 (siege ramp, 2400 HP). Hard still stalls against a lightning-spamming player; consider hard AI rebuilding miners faster.
 3. (done in release 3: mage.) Possible follow-ups: chain lightning for the shaman, mage AI spell targeting.
-4. Giant unit: stone golem / troll.
+4. (done in release 4: giant.) Possible follow-ups: giants throw boulders, AI keeps giants back until 2+ are ready.
 5. Hero: a paladin the player can take direct control of; respawns at the keep.
 6. More spells: rally (speed and damage boost), heal wave.
 7. Campaign of maps and upgrades (armour, mining speed, keep arrows); faction-specific stats.

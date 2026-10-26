@@ -232,3 +232,20 @@ test('after the siege begins, buildings take more damage so stalemates end', () 
   damageBuilding(w, b, 100);
   assert.equal(b.hp, b.maxHp - 300);
 });
+
+test('a giant stomps the foes beside its target and costs three population places', () => {
+  const w = createWorld({ workers: 0, mana: 100, gold: 500 });
+  assert.ok(train(w, 'kingdom', 'giant'));
+  assert.equal(popUsed(w, 'kingdom'), STATS.giant.pop);
+  const g = spawnUnit(w, 'kingdom', 'giant', 1500);
+  const a = spawnUnit(w, 'horde', 'melee', 1520);
+  const b = spawnUnit(w, 'horde', 'melee', 1545);
+  const far = spawnUnit(w, 'horde', 'melee', 1700);
+  setStance(w, 'kingdom', 'attack');
+  setStance(w, 'horde', 'garrison');
+  g.cd = 0;
+  run(w, 0.5);
+  assert.equal(a.hp, a.maxHp - (STATS.giant.damage - STATS.melee.armor));
+  assert.ok(b.hp < b.maxHp, 'splash reached the neighbour');
+  assert.equal(far.hp, far.maxHp);
+});

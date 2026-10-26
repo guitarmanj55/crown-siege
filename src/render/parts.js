@@ -21,6 +21,10 @@ export const LOOKS = {
     head: 'skin', back: ['cape'], torso: ['robe'], helm: ['wizardHat', 'beard'], hand: 'staff', attack: 'cast' },
   shaman: { size: 1.0, build: { trunk: 1.0, head: 1.15, limb: 0.95 }, lean: 0.18,
     head: 'skin', back: ['bones'], torso: ['loincloth', 'robe'], helm: ['skullMask', 'eyes'], hand: 'totem', attack: 'cast' },
+  golem: { size: 1.5, build: { trunk: 1.7, limb: 1.55, arms: 1.0, head: 0.85, legs: 0.85 }, lean: 0.06,
+    head: 'body', back: [], torso: ['stone'], helm: ['runes'], attack: 'swing' },
+  troll: { size: 1.5, build: { trunk: 1.6, limb: 1.4, arms: 1.15, head: 0.9, legs: 0.9 }, lean: 0.22,
+    head: 'skin', back: ['bones'], torso: ['loincloth', 'pauldron'], helm: ['goblinEars', 'eyes'], hand: 'club', attack: 'swing' },
   brute: { size: 1.4, build: { trunk: 1.5, limb: 1.35, arms: 1.1, head: 0.95, legs: 0.95 }, lean: 0.16,
     head: 'skin', back: [], torso: ['spikedPlate'], helm: ['hornHelm', 'eyes'], hand: 'bigAxe', attack: 'swing' },
 };
@@ -109,6 +113,12 @@ const HEAD = {
     ctx.fillStyle = '#10151f'; ctx.fillRect(x + r * 0.35, y - r * 0.4, 1.4, 1.6); ctx.fillRect(x + r * 0.8, y - r * 0.4, 1.4, 1.6);
     poly(ctx, [x - r * 0.5, y - r * 0.8, x - r * 0.1, y - r * 2.2, x + r * 0.3, y - r * 0.9], c.cloth);
   },
+  runes(ctx, j, c) {
+    const { headX: x, headY: y, headR: r } = j;
+    ctx.fillStyle = c.steelDark; ctx.fillRect(x - r * 0.9, y - r * 1.05, r * 1.8, 2.2);
+    circle(ctx, x + r * 0.45, y - r * 0.1, 1.5, c.crystal);
+    circle(ctx, x - r * 0.1, y - r * 0.1, 1.2, c.crystal);
+  },
   eyes(ctx, j, c) {
     circle(ctx, j.headX + j.headR * 0.5, j.headY - j.headR * 0.15, 1.15, '#ffd23a');
   },
@@ -161,6 +171,11 @@ const TORSO = {
   robe(ctx, j, c, b) {
     ctx.strokeStyle = c.cloth; torsoPath(ctx, j, b.trunk * 0.7);
     poly(ctx, [j.hipX - 5, j.hipY - 3, j.hipX + 5, j.hipY - 3, j.hipX + 7, j.hipY + 11, j.hipX - 7, j.hipY + 11], c.cloth);
+  },
+  stone(ctx, j, c, b) {
+    ctx.strokeStyle = c.steelDark; torsoPath(ctx, j, b.trunk * 0.9);
+    circle(ctx, j.neckX - 1, j.neckY + 2, b.trunk * 0.5, c.steel);
+    circle(ctx, j.hipX + 1, j.hipY - 3, 2, c.crystal);
   },
   pauldron(ctx, j, c, b) { circle(ctx, j.neckX - 0.5, j.neckY + 2, b.trunk * 0.48, c.cloth); },
   loincloth(ctx, j, c, b) { poly(ctx, [j.hipX - 4, j.hipY - 2, j.hipX + 4, j.hipY - 2, j.hipX + 3, j.hipY + 6, j.hipX - 3, j.hipY + 5], c.clothDark); },

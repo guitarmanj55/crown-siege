@@ -119,7 +119,7 @@ function handleEvents() {
     const v = volAt(ev.x);
     switch (ev.type) {
       case 'hit':
-        if (!ev.missile) sfx(ev.unit === 'tank' || ev.faction === 'horde' ? 'thud' : 'clang', v * 0.8);
+        if (!ev.missile) sfx(ev.unit === 'tank' || ev.unit === 'giant' || ev.faction === 'horde' ? 'thud' : 'clang', v * 0.8);
         break;
       case 'shoot':
         sfx(ev.unit === 'mage' ? 'orb' : ev.faction === 'horde' && ev.unit === 'ranged' ? 'whoosh' : 'twang', v * 0.6);
@@ -128,6 +128,7 @@ function handleEvents() {
       case 'coin': if (ev.faction === PLAYER) sfx('coin', v * 0.4); break;
       case 'spawn': if (ev.faction === PLAYER) sfx('spawn', 0.6); break;
       case 'buildingHit': sfx('buildingHit', v * 0.7); break;
+      case 'stomp': sfx('stomp', v * 0.9); break;
       case 'blast': sfx('blast', v * 0.8); break;
       case 'spellCast': sfx('cast', v); break;
       case 'lightning': sfx('lightning', Math.max(0.4, v)); break;
@@ -252,7 +253,7 @@ attachInput({
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'p') { if (mode === 'playing') pause(); else if (mode === 'paused') resume(); return; }
   if (mode !== 'playing') return;
-  const i = '12345'.indexOf(e.key);
+  const i = '123456'.indexOf(e.key);
   if (i >= 0) doTrain(UNIT_TYPES[i]);
   else if (e.key === 'g') doStance('garrison');
   else if (e.key === 'd') doStance('defend');

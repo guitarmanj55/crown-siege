@@ -271,7 +271,7 @@ function drawUnits(ctx, world, cam, t) {
   for (const u of list) drawUnitFigure(ctx, u, sx(cam, u.x), gy + u.z * 0.55 * s, s, t);
   for (const u of list) {
     if (u.state === 'dead' || u.hp >= u.maxHp) continue;
-    const x = sx(cam, u.x), y = gy + (u.z * 0.55 - (u.type === 'tank' ? 70 : 54)) * s;
+    const x = sx(cam, u.x), y = gy + (u.z * 0.55 - (u.type === 'giant' ? 92 : u.type === 'tank' ? 70 : 54)) * s;
     const k = u.hp / u.maxHp;
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(x - 9 * s, y, 18 * s, 3 * s);
     ctx.fillStyle = u.faction === 'kingdom' ? '#6fb2ff' : '#ff7a4a';

@@ -9,7 +9,7 @@ export const LEASH = 260; // how far past the defend line defenders will chase
 export const HEAL_INSIDE = 12; // hp/s while garrisoned
 
 // Formation depth per type, relative to the line: tanks in front, archers behind.
-const SLOT = { tank: 34, melee: 6, mage: -60, ranged: -90 };
+const SLOT = { giant: 50, tank: 34, melee: 6, mage: -60, ranged: -90 };
 
 export function setStance(world, faction, stance) {
   if (!STANCES.includes(stance)) return false;

@@ -70,8 +70,12 @@ export function fxEvent(fx, ev, cam, opts) {
       cam.shake = Math.max(cam.shake, 1.5);
       break;
     }
+    case 'stomp':
+      burst(fx, ev.x, -2, 7, { color: 'rgba(120,110,100,0.8)', speed: 70, life: 0.5, size: 4, g: -10, kind: 'dust', angle: -Math.PI / 2, spread: Math.PI });
+      cam.shake = Math.max(cam.shake, 2.5);
+      break;
     case 'siege':
-      fx.texts.push({ x: ev.x, y: -120, life: 0, max: 3, text: 'The walls begin to crack…', color: '#ffb36a' });
+      fx.texts.push({ x: ev.x, y: -120, life: 0, max: 3, text: 'The walls begin to crackâ€¦', color: '#ffb36a' });
       break;
     case 'win':
       for (let i = 0; i < 6; i++) burst(fx, ev.x + (Math.random() - 0.5) * 120, -40 - Math.random() * 120, 14, { color: i % 2 ? '#ff9a3a' : '#ffd34d', speed: 160, life: 1.2, size: 3, g: 60, kind: 'ember' });
