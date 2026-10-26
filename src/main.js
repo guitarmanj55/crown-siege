@@ -10,10 +10,11 @@ import { createFx, fxEvent, updateFx, drawFx, drawFlash, burst } from './render/
 import { createCamera, resizeCamera, updateCamera, centerOn, drawMinimap, sx } from './render/camera.js';
 import { createHud } from './ui/hud.js';
 import { attachInput } from './ui/input.js';
-import { showScreen, renderTitle, renderEnd, renderSound } from './ui/menus.js';
+import { showScreen, renderTitle, renderEnd, renderSound, renderQuests, renderShop } from './ui/menus.js';
 import { loadSave, writeSave, recordResult } from './ui/store.js';
 import { unlockAudio, sfx, setSound, suspendAudio, resumeAudio } from './audio.js';
 import { FACTIONS } from './sim/factions.js';
+import { refreshDaily, summarize, applyGame, checkAchievements, boonsFor, buyUpgrade, chooseBanner, bannerColors } from './progress.js';
 
 const PLAYER = 'kingdom';
 const $ = (s) => document.querySelector(s);
@@ -48,7 +49,7 @@ function newAttract() {
 
 function startGame() {
   difficulty = save.difficulty;
-  world = createWorld({ ai: { horde: difficulty }, seed: (Math.random() * 1e9) | 0 });
+  world = createWorld({ ai: { horde: difficulty }, seed: (Math.random() * 1e9) | 0, boons: { [PLAYER]: boonsFor(save) } });
   fx = createFx();
   aim.active = false;
   acc = 0;
@@ -78,6 +79,13 @@ function resume() {
 function toTitle() {
   mode = 'title';
   newAttract();
+  showMenu();
+}
+
+// The title menu over the attract battle (also the way back from quests and the shop).
+function showMenu() {
+  const rolled = refreshDaily(save, new Date());
+  if (checkAchievements(save).length || rolled) writeSave(save);
   renderTitle(save);
   showScreen('title');
 }
@@ -85,7 +93,9 @@ function toTitle() {
 function finish() {
   const won = world.winner === PLAYER;
   recordResult(save, difficulty, won, world.t);
-  renderEnd(won, difficulty, world, PLAYER);
+  const rewards = applyGame(save, summarize(world, PLAYER, difficulty), new Date());
+  writeSave(save);
+  renderEnd(won, difficulty, world, PLAYER, rewards);
   showScreen('end');
   sfx(won ? 'victory' : 'defeat');
 }
@@ -234,6 +244,27 @@ function doCast(x) {
   if (!castSpell(world, PLAYER, 'lightning', x)) sfx('denied');
 }
 
+// Banner colours are looks only: the renderer reads the faction's colours, the sim never does.
+function applyBanner() {
+  Object.assign(FACTIONS[PLAYER].colors, bannerColors(save));
+  hud.redrawIcons();
+}
+
+const shopHandlers = {
+  onUpgrade(id) {
+    sfx(buyUpgrade(save, id) ? 'coin' : 'denied');
+    writeSave(save);
+    renderShop(save, shopHandlers);
+  },
+  onBanner(id) {
+    if (!chooseBanner(save, id)) { sfx('denied'); return; }
+    sfx('click');
+    writeSave(save);
+    applyBanner();
+    renderShop(save, shopHandlers);
+  },
+};
+
 const hud = createHud(PLAYER, {
   onTrain: doTrain,
   onDismiss: doDismiss,
@@ -279,6 +310,21 @@ $('#soundBtn2').addEventListener('click', toggleSound);
 $('#playBtn').addEventListener('click', () => { unlockAudio(); startGame(); });
 $('#helpBtn').addEventListener('click', () => { unlockAudio(); showScreen('help'); });
 $('#help .back').addEventListener('click', () => showScreen('title'));
+$('#questsBtn').addEventListener('click', () => {
+  unlockAudio();
+  if (refreshDaily(save, new Date())) writeSave(save);
+  renderQuests(save, new Date());
+  showScreen('quests');
+  sfx('click');
+});
+$('#shopBtn').addEventListener('click', () => { unlockAudio(); renderShop(save, shopHandlers); showScreen('shop'); sfx('click'); });
+$('#upgradesToggle').addEventListener('click', () => {
+  save.useUpgrades = !save.useUpgrades;
+  writeSave(save);
+  renderShop(save, shopHandlers);
+  sfx('click');
+});
+for (const b of document.querySelectorAll('#quests .back, #shop .back')) b.addEventListener('click', showMenu);
 $('#resumeBtn').addEventListener('click', resume);
 $('#restartBtn').addEventListener('click', startGame);
 $('#quitBtn').addEventListener('click', toTitle);
@@ -301,5 +347,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 window.__crown = { get world() { return world; }, get mode() { return mode; }, cam };
 
 resize();
+applyBanner();
 toTitle();
 requestAnimationFrame(frame);

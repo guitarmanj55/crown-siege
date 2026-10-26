@@ -25,6 +25,8 @@ export function drawIcon(canvas, type) {
 export function createHud(player, handlers) {
   const train = $('#train');
   const buttons = {};
+  const icons = [];
+  const icon = (canvas, type) => { icons.push([canvas, type]); drawIcon(canvas, type); };
   // Send a miner home, to free its population place for a soldier.
   const dismissBtn = document.createElement('button');
   dismissBtn.className = 'unitBtn dismiss';
@@ -32,7 +34,7 @@ export function createHud(player, handlers) {
   dismissBtn.innerHTML = '<canvas></canvas><i class="minus"></i><span class="cost"></span>';
   dismissBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); handlers.onDismiss(); });
   const dismissCount = dismissBtn.querySelector('.cost');
-  drawIcon(dismissBtn.querySelector('canvas'), 'worker');
+  icon(dismissBtn.querySelector('canvas'), 'worker');
   for (const type of UNIT_TYPES) {
     const s = STATS[type];
     const b = document.createElement('button');
@@ -41,7 +43,7 @@ export function createHud(player, handlers) {
     b.innerHTML = `<canvas></canvas><span class="cost">${s.cost.gold}${s.cost.mana ? `<s>${s.cost.mana}</s>` : ''}</span><span class="q" hidden></span><span class="bar"></span>`;
     b.addEventListener('pointerdown', (e) => { e.preventDefault(); handlers.onTrain(type); });
     train.appendChild(b);
-    drawIcon(b.querySelector('canvas'), type);
+    icon(b.querySelector('canvas'), type);
     buttons[type] = { el: b, q: b.querySelector('.q'), bar: b.querySelector('.bar'), state: {} };
     if (type === 'worker') train.appendChild(dismissBtn);
   }
@@ -82,7 +84,7 @@ export function createHud(player, handlers) {
     let inside = 0;
     for (const u of world.units) if (u.inside && u.faction === player) inside++;
     set('inside', el.inside, inside ? String(inside) : '');
-    const cd = f.spellCd.lightning / SPELLS.lightning.cooldown;
+    const cd = f.spellCd.lightning / (SPELLS.lightning.cooldown * f.spellCdMul);
     const cdv = cd.toFixed(2);
     if (last.cd !== cdv) { last.cd = cdv; spellBtn.style.setProperty('--cd', cdv); }
     cls('spell', spellBtn, 'off', !!spellBlock(world, player, 'lightning'));
@@ -90,5 +92,8 @@ export function createHud(player, handlers) {
     if (el.hint.hidden !== !aiming) el.hint.hidden = !aiming;
   }
 
-  return { update };
+  // Redraw the unit icons, after the banner colours change.
+  function redrawIcons() { for (const [c, type] of icons) drawIcon(c, type); }
+
+  return { update, redrawIcons };
 }

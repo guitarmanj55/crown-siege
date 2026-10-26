@@ -125,6 +125,7 @@ export function stepEconomy(world, dt) {
         f.queue.shift();
         spawnUnit(world, id, q.type);
         f.stats.trained++;
+        f.stats.byType[q.type] = (f.stats.byType[q.type] || 0) + 1;
       }
     }
   }

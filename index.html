@@ -59,6 +59,11 @@
         <h1>Crown Siege</h1>
         <p class="tag">Hold the keep. Topple the dark tower.</p>
         <p id="record" class="record"></p>
+        <div class="meta">
+          <span class="chip crowns" title="Crowns"><i class="ico crown"></i><b id="crowns">0</b></span>
+          <button id="questsBtn" class="small">Quests<em id="questBadge" hidden></em></button>
+          <button id="shopBtn" class="small">Shop</button>
+        </div>
       </div>
       <div class="controls">
         <div class="diff" role="radiogroup" aria-label="Difficulty">
@@ -85,8 +90,45 @@
         <li><b>Garrison</b> pulls the army into the keep (it heals there, and adds arrows). <b>Defend</b> holds the line. <b>Attack</b> marches on the tower.</li>
         <li><b>⚡ Lightning</b>: tap it, then tap the battlefield. Costs mana, then recharges.</li>
         <li>Drag to look around; tap the minimap to jump.</li>
+        <li>Every battle earns <b>crowns</b>, and so do the three <b>daily quests</b>, the first battle of each day (more for days in a row) and achievements. Spend them in the <b>Shop</b> on upgrades for the keep, or new banner colours.</li>
       </ul>
       <button class="big back">Got it</button>
+    </div>
+  </section>
+
+  <section id="quests" class="screen" hidden>
+    <div class="panel wide sheet">
+      <header>
+        <h2>Quests</h2>
+        <span class="chip crowns"><i class="ico crown"></i><b class="crownCount">0</b></span>
+        <button class="small back">Done</button>
+      </header>
+      <div class="cols">
+        <div>
+          <h3>Today <small id="questReset"></small></h3>
+          <ul id="dailyList" class="qlist"></ul>
+          <p id="streakText" class="note"></p>
+        </div>
+        <div>
+          <h3>Achievements <small id="achCount"></small></h3>
+          <ul id="achList" class="qlist compact"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shop" class="screen" hidden>
+    <div class="panel wide sheet">
+      <header>
+        <h2>Shop</h2>
+        <span class="chip crowns"><i class="ico crown"></i><b class="crownCount">0</b></span>
+        <button class="small back">Done</button>
+      </header>
+      <div id="upgradeList" class="cards"></div>
+      <div class="shopFoot">
+        <div id="bannerList" class="banners" role="radiogroup" aria-label="Banner colour"></div>
+        <button id="upgradesToggle" class="small" role="switch"></button>
+      </div>
     </div>
   </section>
 
@@ -106,7 +148,10 @@
     <div class="panel">
       <h2 id="endTitle">Victory</h2>
       <p id="endText" class="tag"></p>
-      <dl id="endStats" class="stats"></dl>
+      <div class="endBody">
+        <dl id="endStats" class="stats"></dl>
+        <ul id="endRewards" class="rewards"></ul>
+      </div>
       <button id="againBtn" class="big">Play again</button>
       <div class="row"><button id="menuBtn" class="small">Menu</button></div>
     </div>

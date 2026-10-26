@@ -38,23 +38,27 @@ export function mulberry32(seed) {
 function createFaction(id, opts) {
   const def = FACTIONS[id];
   const side = sideMap(def.dir);
+  const boons = (opts.boons && opts.boons[id]) || {};
   return {
     id,
     dir: def.dir,
-    gold: opts.gold ?? 150,
+    gold: (opts.gold ?? 150) + (boons.startGold || 0),
     mana: opts.mana ?? 30,
     stance: 'defend',
     queue: [],
     spellCd: { lightning: 0 },
-    incomeMul: 1,
+    incomeMul: boons.income ?? 1,
+    spellCdMul: boons.spellCd ?? 1,
+    buildingHpMul: boons.buildingHp ?? 1,
     ...side,
-    stats: { trained: 0, kills: 0, lost: 0, gold: 0 },
+    stats: { trained: 0, kills: 0, lost: 0, gold: 0, byType: {}, spellKills: 0, casts: 0 },
     ai: null,
   };
 }
 
 /**
- * opts: { seed, ai: { kingdom?: 'easy'|'normal'|'hard', horde?: ... }, workers, gold, mana }
+ * opts: { seed, ai: { kingdom?: 'easy'|'normal'|'hard', horde?: ... }, workers, gold, mana,
+ *   boons: { kingdom?: { startGold, income, spellCd, buildingHp } } } (boons: the player's shop upgrades, as multipliers)
  */
 export function createWorld(opts = {}) {
   const world = {
@@ -79,7 +83,8 @@ export function createWorld(opts = {}) {
   };
   for (const id of ['kingdom', 'horde']) {
     const f = world.factions[id];
-    world.buildings[id] = { faction: id, x: f.buildingX, halfW: 70, hp: BUILDING_HP, maxHp: BUILDING_HP, cd: 0, hitT: 0 };
+    const hp = Math.round(BUILDING_HP * f.buildingHpMul);
+    world.buildings[id] = { faction: id, x: f.buildingX, halfW: 70, hp, maxHp: hp, cd: 0, hitT: 0 };
     const diff = opts.ai && opts.ai[id];
     if (diff) f.ai = createAI(world, id, diff);
     const workers = opts.workers ?? 3;

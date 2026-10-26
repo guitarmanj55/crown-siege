@@ -153,3 +153,100 @@ h2 { font-size: 26px; }
   .unitBtn.dismiss { width: 44px; }
   .res { max-width: 30%; }
 }
+
+/* ---------- crowns, quests and the shop ---------- */
+.ico.crown {
+  border-radius: 0; width: 15px; height: 12px; flex: 0 0 auto;
+  background: linear-gradient(180deg, #fff2b0, #e9b949 55%, #a67a1e);
+  clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%);
+}
+.chip.crowns b { color: var(--gold); }
+.meta { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.meta .chip { min-height: 32px; }
+.meta .small { position: relative; flex: 1; padding: 0 12px; white-space: nowrap; }
+.meta em {
+  position: absolute; top: -6px; right: -6px; min-width: 19px; height: 19px; border-radius: 10px; background: #c8553d;
+  color: #fff; font: 700 11px/19px system-ui, sans-serif; font-style: normal; padding: 0 5px;
+}
+
+.panel.sheet { width: min(680px, 100%); padding: 12px 16px; }
+.sheet header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.sheet header h2 { margin: 0; flex: 1; }
+.sheet h3 { margin: 0 0 6px; font: 600 15px var(--serif); color: var(--accent); }
+.sheet h3 small { font: 500 12px system-ui, sans-serif; color: var(--muted); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.qlist { list-style: none; margin: 0 !important; padding: 0 !important; display: grid; gap: 6px; }
+.qlist li { margin: 0; padding: 7px 9px; border-radius: 9px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); }
+.qlist li.done { border-color: rgba(233, 185, 73, 0.45); background: rgba(233, 185, 73, 0.1); }
+.qtop { display: flex; gap: 8px; justify-content: space-between; font-size: 13px; }
+.qreward { color: var(--gold); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.qbar { height: 5px; border-radius: 3px; background: rgba(0, 0, 0, 0.35); margin-top: 5px; overflow: hidden; }
+.qbar i { display: block; height: 100%; background: linear-gradient(90deg, #b9862a, #ffd34d); }
+.qnum { display: block; font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.qlist.compact li { padding: 5px 9px; }
+.qlist.compact .qtop { font-size: 12px; }
+.qlist.compact li:not(.done) .qtext { color: var(--ink); }
+.note { margin: 8px 0 0; color: var(--muted); font-size: 12px; font-weight: 500; }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cinfo { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.cinfo b { font: 600 14px var(--serif); color: var(--ink); }
+.cinfo span { font-size: 12px; font-weight: 500; color: var(--muted); }
+.pips { display: flex !important; gap: 4px; margin-top: 2px; }
+.pips i { width: 14px; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+.pips i.on { background: var(--gold); }
+.buy {
+  min-width: 70px; min-height: 44px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: linear-gradient(180deg, #f1c75b, #b9862a); color: #2a1c05; border: 1px solid #ffe39a; font-variant-numeric: tabular-nums;
+}
+.buy .ico.crown { background: #2a1c05; }
+.buy.poor { filter: saturate(0.25) brightness(0.7); }
+.buy:disabled { background: var(--btn); color: var(--muted); border-color: rgba(255, 255, 255, 0.14); }
+.shopFoot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.banners { display: flex; gap: 6px; }
+.banner {
+  position: relative; width: 52px; height: 44px; border-radius: 10px; background: var(--btn); border: 1px solid rgba(255, 255, 255, 0.14);
+  display: grid; place-items: center;
+}
+.banner.on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(233, 185, 73, 0.45) inset; }
+.swatch { width: 20px; height: 26px; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%); }
+.banner .price {
+  position: absolute; bottom: -1px; left: 0; right: 0; display: flex; gap: 2px; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gold); background: rgba(10, 8, 20, 0.8); border-radius: 0 0 9px 9px; line-height: 14px;
+}
+.banner .price .ico.crown { width: 9px; height: 7px; }
+.banner .price.poor { color: var(--muted); }
+.banner:has(.price) .swatch { margin-bottom: 10px; opacity: 0.75; }
+
+.endBody { display: flex; gap: 18px; justify-content: center; align-items: flex-start; margin-bottom: 8px; }
+.endBody .stats { margin: 0; }
+.rewards { list-style: none; margin: 0 !important; padding: 0 !important; display: grid; gap: 2px; min-width: 190px; text-align: left; font-size: 12.5px; font-weight: 500; }
+.rewards li { display: flex; justify-content: space-between; gap: 10px; margin: 0 !important; }
+.rewards li b { color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rewards li.quest span, .rewards li.achievement span { color: var(--ink); }
+.rewards li.achievement span::before { content: "★ "; color: var(--gold); }
+.rewards li.total { border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 3px; margin-top: 2px !important; font-weight: 700; }
+.rewards li.total b { display: inline-flex; gap: 4px; align-items: center; }
+#end .panel { width: min(560px, 100%); }
+@media (max-width: 560px), (orientation: portrait) {
+  .cols, .cards { grid-template-columns: 1fr; }
+  .endBody { flex-direction: column; align-items: center; }
+}
+@media (max-height: 420px) {
+  .meta { margin-top: 6px; }
+  .sheet header { margin-bottom: 6px; }
+  .sheet h2 { font-size: 22px; }
+  .card { padding: 5px 8px; }
+  .qlist li { padding: 5px 8px; }
+  .qlist.compact li { padding: 3px 8px; }
+  #end h2 { font-size: 24px; }
+  #end .tag { margin-bottom: 6px; }
+}
+/* Quests: the header stays put; each column scrolls on its own. */
+#quests .panel { display: flex; flex-direction: column; overflow: hidden; }
+#quests .cols { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); }
+#quests .cols > div { overflow: auto; min-height: 0; overscroll-behavior: contain; touch-action: pan-y; }

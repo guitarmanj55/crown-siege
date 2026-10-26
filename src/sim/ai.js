@@ -15,7 +15,7 @@ const MIX = { melee: 0.36, ranged: 0.28, tank: 0.14, mage: 0.12, giant: 0.1 };
 
 export function createAI(world, faction, difficulty) {
   const d = DIFFICULTY[difficulty] || DIFFICULTY.normal;
-  world.factions[faction].incomeMul = d.income;
+  world.factions[faction].incomeMul *= d.income;
   return { difficulty, d, timer: 0 };
 }
 

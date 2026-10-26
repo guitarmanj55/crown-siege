@@ -16,9 +16,12 @@ Factions: Kingdom (player; steel blues and golds) vs Horde of orcs and goblins (
 | mage | Battle Wizard | Orc Shaman | 125 gold + 30 mana |
 | giant | Stone Golem | Cave Troll | 250 gold + 80 mana, 3 pop |
 
+**Crowns, quests and the shop** (release 5, `src/progress.js`, pure): every battle pays crowns (win/loss: easy 10/3, normal 20/5, hard 35/8); the first battle of each day pays a streak bonus (10, +5 per day in a row, up to 40); three **daily quests** a day, picked from the date (same three all day, reset at local midnight); one-time **achievements** read from the saved totals and record (also paid on the menu, so older saves get theirs). The **Shop** sells four upgrades of three tiers (Royal Treasury +40 starting gold, Deep Veins +5% income, Stout Walls +8% keep HP, Storm Lore -10% lightning recharge), with an Upgrades on/off switch, and banner colours for the Kingdom's cloth (looks only). Upgrades reach the sim as `createWorld({ boons: { kingdom: {...} } })`.
+
 All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attached shapes (helmets, shields, capes, weapons). No art files.
 
 ## State of play (read this first)
+- Release 5 (2026-10-26): **gamification**: crowns, daily quests, achievements, a play streak and a shop (see above). Title gets a crown count and Quests (badge: quests left today) and Shop buttons; the end screen lists the crowns earned. Sim: `boons` option, `stats.byType`, `stats.spellKills`, `stats.casts`, `f.spellCdMul`; the AI's income multiplier now stacks (`*=`). Save schema 2 (same key) with a migration from schema 1 (wins counted from the record). Probe, 8 seeds, scripted player with mages and giants: no upgrades, normal 8/8 (7-15 min), hard 5/8; every upgrade maxed (about 1,860 crowns, weeks of play), normal 8/8 (6-9 min), hard 7/8. `npm test` passes 23 tests. Checked in the preview at 844x390 and 667x375 (title, quests, shop, buying, banner colours in a game, end screen rewards); not checked on a real iPhone (scrolling the achievements column by touch especially). `scripts/serve.py` now honours `PORT`, so the preview works when 8131 is taken.
 - Release 4 (2026-10-26): **Stone Golem / Cave Troll** giant (250 gold + 80 mana, 3 pop, key 6; 720 HP, armour 3, slow, 38 damage and every blow stomps 50% onto foes within 44 units; front of the line). The AI trains giants (10% of its mix). Probe with the scripted player (mage and giant in its mix), 8 seeds: easy 8/8 (3.5 min), normal 8/8 (7-15 min), hard 5/8 (several 30-minute stalls); hard used to be 0/8, so hard may now be a little soft against a good player. `npm test` passes 15 tests. Fixed a stray non-UTF-8 byte in `fx.js` from release 3 (Python on Windows: always pass `encoding='utf-8'` when editing files). Checked in the preview at 667x375 (six train buttons fit); not checked on a real iPhone. The `/next-release` skill lives in `~/.claude/skills/next-release`.
 - Release 3 (2026-10-26): **Battle Wizard / Orc Shaman** (125 gold + 30 mana, key 5; slow orb that ignores armour and splashes 60% to foes within 48 units; fragile, stands behind the line), and pacing: buildings 2400 HP, plus a **siege ramp** (from 8:00 buildings take +100% damage per further 2 minutes, `siegeMul` in `combat.js`, with a "walls begin to crack" message) so stalemates end. The AI trains mages (13% of its mix). Probe over 8 seeds with a scripted player using mages: beats easy 8/8 (3.5 min), normal 8/8 (7–21 min; before, 5/8 with three 30-minute stalls); hard 0/8 (mostly stalls, since the probe's lightning kills Horde miners). `npm test` passes 14 tests. Also guards `drawSky` against a non-finite frame while resizing (it threw and would stop the loop). Checked in the preview at 844x390 and 667x375 (five train buttons fit); not checked on a real iPhone.
 - Release 2 (2026-10-25): compact two-column title panel for short landscape screens (about 180px tall instead of 300), and sending miners home. Checked in the preview at 844x390 and 667x375.
@@ -33,7 +36,7 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 - **Sim events drive effects and sound.** The sim pushes `world.events` (hit, shoot, death, coin, spawn, buildingHit, spellCast, lightning, win) and `main.js` turns them into particles and sound. Do not call render or audio code from the sim.
 - **No build step, no dependencies.** Plain ES modules served as-is; `npm test` uses Node's own test runner.
 - **iPhone first.** Landscape only (portrait shows the rotate prompt), safe-area insets, touch targets at least 44px, devicePixelRatio capped at 2, `prefers-reduced-motion` turns off screen shake. Audio is unlocked on the first `pointerdown` (iOS needs a tap). Going to the background pauses the game and suspends audio.
-- **Saved data:** `localStorage` key `crownsiege_v1` (`schema: 1`: difficulty, sound, win/loss record and fastest win per difficulty). Every access is wrapped in try/catch in `src/ui/store.js`. Do not change the key or shape without a migration in `loadSave()`.
+- **Saved data:** `localStorage` key `crownsiege_v1` (`schema: 2`: difficulty, sound, win/loss record and fastest win per difficulty; crowns, upgrades, useUpgrades, banners, banner, daily, streak, totals, achieved). Every access is wrapped in try/catch in `src/ui/store.js`. Do not change the key or shape without a migration in `loadSave()`.
 - **Service worker:** network-first for the shell, cache-first for icons. Bump `CACHE` in `sw.js` every release and add any new file to `SHELL`.
 - `window.__crown` exposes the world and camera for checks in the browser; the game does not use it.
 
@@ -42,8 +45,8 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 - `src/main.js`: game loop (fixed sim step, render every frame), modes (title / playing / paused / ended), wiring of HUD, input, events, effects and audio.
 - `src/sim/` (pure, tested): `world.js` (map, create, step, win), `factions.js` (stats and costs as data), `economy.js` (gold, mana, population, training queue, mining loop), `combat.js` (targeting via a per-faction x-sorted index, swings, missiles, damage, buildings' arrows), `orders.js` (garrison / defend / attack), `spells.js` (lightning), `ai.js` (build order, composition, when to attack or fall back, lightning; easy/normal/hard).
 - `src/render/`: `rig.js` (skeleton, poses: idle, walk, swing, bow, throw, mine, die), `parts.js` (attached shapes and the eight looks), `draw.js` (sky, parallax, ground, keep, tower, mines, crystals, units, missiles), `fx.js` (particles, bolts, coin pops, flash), `camera.js` (pan, fling, shake, minimap).
-- `src/ui/`: `hud.js`, `input.js` (drag to pan, minimap, spell aiming), `menus.js`, `store.js`. `src/audio.js`: WebAudio synth effects.
-- `test/sim.test.js`: sim tests. `scripts/make_icons.ps1` renders `icons/`.
+- `src/ui/`: `hud.js`, `input.js` (drag to pan, minimap, spell aiming), `menus.js` (also quests and shop screens), `store.js`. `src/progress.js` (pure): crowns, daily quests, achievements, streak, shop catalogue, `boonsFor`. `src/audio.js`: WebAudio synth effects.
+- `test/sim.test.js`: sim tests. `test/progress.test.js`: quests, shop, boons, save migration. `scripts/make_icons.ps1` renders `icons/`.
 - `.claude/launch.json` serves the folder on port 8131 with `scripts/serve.py` (Python's `http.server` with `Cache-Control: no-store`).
 
 ## Testing
@@ -58,6 +61,7 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 6. More spells: rally (speed and damage boost), heal wave.
 7. Campaign of maps and upgrades (armour, mining speed, keep arrows); faction-specific stats.
 8. Per-unit-type commands or a second lane, if the single army order feels too thin.
+9. (done in release 5: quests and shop.) Possible follow-ups: weekly quest with a bigger prize, more cosmetics (keep skins, lightning colour), a reroll for one daily quest, unit upgrades (armour) once faction stats split.
 
 ## Release routine
 `npm test`, check in the browser preview as above, bump `CACHE` in `sw.js`, commit and `git push` (Pages redeploys from `main`; check the live URL).

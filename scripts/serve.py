@@ -1,6 +1,7 @@
 # Dev server for the preview: like `python -m http.server`, but tells the browser not to cache,
 # so edited modules load on a plain reload.
 import http.server
+import os
 import sys
 
 
@@ -10,5 +11,6 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 8131
+# PORT (set by the preview when the configured port is taken) wins over the argument.
+port = int(os.environ.get("PORT") or (sys.argv[1] if len(sys.argv) > 1 else 8131))
 http.server.ThreadingHTTPServer(("", port), NoCache).serve_forever()
