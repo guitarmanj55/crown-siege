@@ -6,6 +6,13 @@ export const HIT_AT = 0.3; // seconds into the swing when the blow lands or the 
 export const KEEP_RANGE = 360;
 export const KEEP_DAMAGE = 16;
 export const KEEP_COOLDOWN = 1.1;
+// Siege: from SIEGE_START the walls crack and buildings take ever more damage, so long stalemates end.
+export const SIEGE_START = 480;
+export const SIEGE_RAMP = 120; // seconds for each extra +100% damage to buildings
+
+export function siegeMul(world) {
+  return world.t < SIEGE_START ? 1 : 1 + (world.t - SIEGE_START) / SIEGE_RAMP;
+}
 
 /** Per faction, the units that can be hit (alive, outside), sorted by x. */
 export function buildIndex(world) {
@@ -76,7 +83,7 @@ export function damageUnit(world, target, amount, byFaction, ignoreArmor = false
 
 export function damageBuilding(world, b, amount) {
   if (b.hp <= 0) return;
-  b.hp = Math.max(0, b.hp - amount);
+  b.hp = Math.max(0, b.hp - amount * siegeMul(world));
   b.hitT = 0.2;
   world.events.push({ type: 'buildingHit', faction: b.faction, x: b.x });
 }
@@ -116,7 +123,7 @@ function resolveHit(world, u) {
   const foe = enemyOf(u.faction);
   if (u.targetBuilding) {
     const b = world.buildings[foe];
-    if (s.projectile) fire(world, u.faction, u.x, -34, null, b, s.damage, 'missile', u.type);
+    if (s.projectile) fire(world, u.faction, u.x, -34, null, b, s.damage, missileKind(s), u.type);
     else damageBuilding(world, b, s.damage);
     if (!s.projectile) world.events.push({ type: 'hit', faction: u.faction, unit: u.type, x: buildingFace(b, world.factions[foe].dir), z: u.z, building: true });
     return;
@@ -124,20 +131,24 @@ function resolveHit(world, u) {
   const t = world.unitById.get(u.targetId);
   if (!t || t.state === 'dead' || t.inside) return;
   if (s.projectile) {
-    fire(world, u.faction, u.x, -34, t, null, s.damage, 'missile', u.type);
+    fire(world, u.faction, u.x, -34, t, null, s.damage, missileKind(s), u.type);
   } else if (Math.abs(t.x - u.x) <= s.range + 24) {
     damageUnit(world, t, s.damage, u.faction);
     world.events.push({ type: 'hit', faction: u.faction, unit: u.type, x: (t.x + u.x) / 2, z: t.z });
   }
 }
 
+function missileKind(s) { return s.magic ? 'orb' : 'missile'; }
+
 function fire(world, faction, x, y, target, building, dmg, kind, from) {
   const tx = target ? target.x : buildingFace(building, world.factions[enemyOf(faction)].dir);
   const dist = Math.abs(tx - x);
+  const s = STATS[from];
+  const orb = kind === 'orb';
   world.projectiles.push({
     faction, kind, from, sx: x, sy: y, x, y, angle: 0,
     targetId: target ? target.id : 0, building: !!building, lastX: tx,
-    dmg, t: 0, dur: Math.max(0.25, dist / 440), arc: Math.min(90, dist * 0.22),
+    dmg, t: 0, dur: Math.max(0.25, dist / ((s && s.projSpeed) || 440)), arc: Math.min(orb ? 30 : 90, dist * (orb ? 0.08 : 0.22)),
   });
   world.events.push({ type: 'shoot', faction, unit: from, x });
 }
@@ -163,15 +174,32 @@ function stepProjectiles(world, dt) {
     p.y = ny;
     if (k >= 1) {
       if (p.building) damageBuilding(world, world.buildings[foe], p.dmg);
+      else if (p.kind === 'orb') blast(world, p, tgt);
       else if (tgt) {
         damageUnit(world, tgt, p.dmg, p.faction);
         world.events.push({ type: 'hit', faction: p.faction, unit: p.from, x: tgt.x, z: tgt.z, missile: true });
       }
+      if (p.kind === 'orb' && p.building) world.events.push({ type: 'blast', faction: p.faction, x: p.lastX, y: -60, hits: 0 });
       continue;
     }
     keep.push(p);
   }
   world.projectiles = keep;
+}
+
+/** A mage's orb bursts where it lands: full damage to its target, splash to the foes around it. Ignores armour. */
+function blast(world, p, tgt) {
+  const s = STATS[p.from];
+  const foe = enemyOf(p.faction);
+  const x = p.lastX;
+  let hits = 0;
+  if (tgt) { damageUnit(world, tgt, p.dmg, p.faction, true); hits++; }
+  for (const u of unitsNear(world, foe, x, s.splash)) {
+    if (u === tgt || u.state === 'dead') continue;
+    damageUnit(world, u, p.dmg * s.splashMul, p.faction, true);
+    hits++;
+  }
+  world.events.push({ type: 'blast', faction: p.faction, x, y: -10, hits });
 }
 
 /** Each building shoots arrows at the nearest enemy in range; garrisoned units add arrows. */
@@ -196,6 +224,10 @@ function stepBuildings(world, dt) {
 }
 
 export function stepCombat(world, dt) {
+  if (!world.siege && world.t >= SIEGE_START) {
+    world.siege = true;
+    world.events.push({ type: 'siege', x: world.width / 2 });
+  }
   stepProjectiles(world, dt);
   stepBuildings(world, dt);
 }

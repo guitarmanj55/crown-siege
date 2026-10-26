@@ -1,7 +1,7 @@
 // Unit stats, costs, looks and attacks per faction, as data.
 // Release 1: both factions share the same stats (STATS); only names and looks differ.
 
-export const UNIT_TYPES = ['worker', 'melee', 'ranged', 'tank'];
+export const UNIT_TYPES = ['worker', 'melee', 'ranged', 'tank', 'mage'];
 
 // speed in world units/s, cooldown in s, range/aggro in world units, trainTime in s.
 export const STATS = {
@@ -13,6 +13,10 @@ export const STATS = {
     cost: { gold: 100, mana: 0 }, pop: 1, trainTime: 5, projectile: true, projSpeed: 440 },
   tank: { hp: 440, armor: 4, speed: 40, damage: 20, range: 30, aggro: 210, cooldown: 1.4,
     cost: { gold: 150, mana: 40 }, pop: 2, trainTime: 7 },
+  // Mage: a slow fire orb that ignores armour and splashes the foes around its target.
+  mage: { hp: 70, armor: 0, speed: 48, damage: 22, range: 200, aggro: 260, cooldown: 2.6,
+    cost: { gold: 125, mana: 30 }, pop: 1, trainTime: 6, projectile: true, projSpeed: 300,
+    magic: true, splash: 48, splashMul: 0.6 },
 };
 
 export const SPELLS = {
@@ -35,6 +39,7 @@ export const FACTIONS = {
       melee: { name: 'Footman', look: 'footman' },
       ranged: { name: 'Elf Archer', look: 'elf' },
       tank: { name: 'Shield Knight', look: 'knight' },
+      mage: { name: 'Battle Wizard', look: 'wizard' },
     },
   },
   horde: {
@@ -52,6 +57,7 @@ export const FACTIONS = {
       melee: { name: 'Orc Grunt', look: 'grunt' },
       ranged: { name: 'Goblin Spear-thrower', look: 'goblinSpear' },
       tank: { name: 'Armoured Brute', look: 'brute' },
+      mage: { name: 'Orc Shaman', look: 'shaman' },
     },
   },
 };

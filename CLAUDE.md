@@ -13,10 +13,12 @@ Factions: Kingdom (player; steel blues and golds) vs Horde of orcs and goblins (
 | melee | Footman | Orc Grunt | 75 gold |
 | ranged | Elf Archer | Goblin Spear-thrower | 100 gold |
 | tank | Shield Knight | Armoured Brute | 150 gold + 40 mana, 2 pop |
+| mage | Battle Wizard | Orc Shaman | 125 gold + 30 mana |
 
 All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attached shapes (helmets, shields, capes, weapons). No art files.
 
 ## State of play (read this first)
+- Release 3 (2026-10-26): **Battle Wizard / Orc Shaman** (125 gold + 30 mana, key 5; slow orb that ignores armour and splashes 60% to foes within 48 units; fragile, stands behind the line), and pacing: buildings 2400 HP, plus a **siege ramp** (from 8:00 buildings take +100% damage per further 2 minutes, `siegeMul` in `combat.js`, with a "walls begin to crack" message) so stalemates end. The AI trains mages (13% of its mix). Probe over 8 seeds with a scripted player using mages: beats easy 8/8 (3.5 min), normal 8/8 (7–21 min; before, 5/8 with three 30-minute stalls); hard 0/8 (mostly stalls, since the probe's lightning kills Horde miners). `npm test` passes 14 tests. Also guards `drawSky` against a non-finite frame while resizing (it threw and would stop the loop). Checked in the preview at 844x390 and 667x375 (five train buttons fit); not checked on a real iPhone.
 - Release 2 (2026-10-25): compact two-column title panel for short landscape screens (about 180px tall instead of 300), and sending miners home. Checked in the preview at 844x390 and 667x375.
 - Release 1 built 2026-10-23. `npm test` passes 12 tests, among them headless AI-vs-AI battles and a scripted "sensible player" that beats easy every time and normal on at least 3 of 6 seeds (5/8 when probed; hard beat it 0/8).
 - Checked in the browser preview at 844x390: title (with an AI-vs-AI battle playing behind it), training through the buttons, drag to pan, minimap jump, lightning aim and cast with a real click, a win on Easy and a loss on Normal (end screens and saved records), pause on going to the background, and the portrait "turn your phone" prompt. No console errors from the game.
@@ -47,8 +49,8 @@ All art is procedural Canvas 2D: a skeleton rig with pose keyframes plus attache
 
 ## Backlog (release 2 and later)
 1. Check on the real iPhone (see State of play) and tune touch, frame rate and audio levels.
-2. Pacing: shorten normal games (building HP 3000, attackers vs tower arrows) and break stalemates.
-3. Mage unit: battle wizard (fireball, area damage) / shaman (chain lightning), costing mana.
+2. Pacing: partly done in release 3 (siege ramp, 2400 HP). Hard still stalls against a lightning-spamming player; consider hard AI rebuilding miners faster.
+3. (done in release 3: mage.) Possible follow-ups: chain lightning for the shaman, mage AI spell targeting.
 4. Giant unit: stone golem / troll.
 5. Hero: a paladin the player can take direct control of; respawns at the keep.
 6. More spells: rally (speed and damage boost), heal wave.

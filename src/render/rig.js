@@ -85,12 +85,25 @@ function toss(p, look) {
   };
 }
 
+// Cast: raise the staff, gather power, thrust it forward at HIT_AT.
+function cast(p, look) {
+  const hit = HIT_AT / ATTACK_ANIM;
+  let sh, lean;
+  const charge = p < hit ? ease(p / hit) : Math.max(0, 1 - (p - hit) * 3);
+  if (p < hit) { const k = ease(p / hit); sh = lerp(0.3, -1.4, k); lean = lerp(0, -0.1, k); }
+  else { const k = ease(Math.min(1, (p - hit) / 0.25)); sh = lerp(-1.4, 1.2, k); lean = lerp(-0.1, 0.18, k); }
+  return {
+    bob: -0.5, lean: (look.lean ?? 0) + lean, head: -lean * 0.4,
+    armF: [sh, 0.35], armB: [0.8, 0.7], legF: [0.3, -0.1], legB: [-0.3, -0.1], charge,
+  };
+}
+
 /** Pose for a unit at time t (seconds, render clock). */
 export function poseFor(u, look, t) {
   let pose;
   if (u.state === 'attack' && u.atkT >= 0) {
     const p = Math.min(1, u.atkT / ATTACK_ANIM);
-    pose = look.attack === 'bow' ? bow(p, look) : look.attack === 'throw' ? toss(p, look) : swing(p, look);
+    pose = look.attack === 'bow' ? bow(p, look) : look.attack === 'throw' ? toss(p, look) : look.attack === 'cast' ? cast(p, look) : swing(p, look);
   } else if (u.state === 'mine') {
     pose = swing(((u.workT + u.jitter) % 1.0) / 1.0, look);
   } else if (u.state === 'walk') {

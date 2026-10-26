@@ -9,7 +9,7 @@ import { stepAI, createAI } from './ai.js';
 export { POP_CAP, QUEUE_MAX, MANA_CAP } from './economy.js';
 
 export const STEP = 1 / 60;
-export const BUILDING_HP = 3000;
+export const BUILDING_HP = 2400;
 
 const WIDTH = 3200;
 
@@ -75,6 +75,7 @@ export function createWorld(opts = {}) {
     buildings: {},
     winner: null,
     over: false,
+    siege: false,
   };
   for (const id of ['kingdom', 'horde']) {
     const f = world.factions[id];

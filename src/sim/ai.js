@@ -11,7 +11,7 @@ export const DIFFICULTY = {
   hard: { think: 0.4, workers: 8, income: 1.2, attackRatio: 1.0, minAttack: 6, retreatRatio: 0.45, spellCluster: 4, firstAttack: 100 },
 };
 
-const MIX = { melee: 0.45, ranged: 0.35, tank: 0.2 };
+const MIX = { melee: 0.4, ranged: 0.3, tank: 0.17, mage: 0.13 };
 
 export function createAI(world, faction, difficulty) {
   const d = DIFFICULTY[difficulty] || DIFFICULTY.normal;
@@ -31,7 +31,7 @@ export function armyValue(world, faction) {
 }
 
 function counts(world, faction) {
-  const c = { worker: 0, melee: 0, ranged: 0, tank: 0 };
+  const c = { worker: 0, melee: 0, ranged: 0, tank: 0, mage: 0 };
   for (const u of world.units) if (u.faction === faction && u.state !== 'dead') c[u.type]++;
   for (const q of world.factions[faction].queue) c[q.type]++;
   return c;
@@ -45,18 +45,18 @@ function chooseBuild(world, faction, ai) {
     if (!trainBlock(world, faction, 'worker')) train(world, faction, 'worker');
     return;
   }
-  const army = c.melee + c.ranged + c.tank;
+  const army = c.melee + c.ranged + c.tank + c.mage;
   // Pick the type furthest below its share; save up for it rather than spending on something else.
   let pick = 'melee';
   let worst = Infinity;
-  for (const t of ['melee', 'ranged', 'tank']) {
+  for (const t of ['melee', 'ranged', 'tank', 'mage']) {
     const share = army ? c[t] / army : 0;
     const gap = share - MIX[t];
     if (gap < worst) { worst = gap; pick = t; }
   }
   // Cheap opener: get a few grunts out before saving for brutes.
   if (army < 3) pick = 'melee';
-  if (pick === 'tank' && STATS.tank.cost.mana > f.mana && f.gold > 250) pick = 'ranged';
+  if ((pick === 'tank' || pick === 'mage') && STATS[pick].cost.mana > f.mana && f.gold > 250) pick = 'ranged';
   if (!trainBlock(world, faction, pick)) train(world, faction, pick);
 }
 

@@ -5,6 +5,7 @@ import { train, trainBlock, popUsed, spawnUnit, dismissWorker, workerCount, POP_
 import { setStance } from '../src/sim/orders.js';
 import { castSpell, spellBlock } from '../src/sim/spells.js';
 import { SPELLS, STATS } from '../src/sim/factions.js';
+import { damageBuilding, SIEGE_START, SIEGE_RAMP } from '../src/sim/combat.js';
 
 function run(world, seconds) {
   const n = Math.round(seconds / STEP);
@@ -203,4 +204,31 @@ test('difficulty curve: a sensible player beats easy every time and normal more 
   let wins = 0;
   for (let seed = 1; seed <= 6; seed++) if (play('normal', seed) === 'kingdom') wins++;
   assert.ok(wins >= 3, `normal: won ${wins}/6`);
+});
+
+test('a mage orb ignores armour and splashes the foes around its target', () => {
+  const w = createWorld({ workers: 0, mana: 100, gold: 500 });
+  assert.ok(train(w, 'kingdom', 'mage'));
+  assert.equal(w.factions.kingdom.mana, 100 - STATS.mage.cost.mana);
+  const mage = spawnUnit(w, 'kingdom', 'mage', 1500);
+  const knight = spawnUnit(w, 'horde', 'tank', 1650);
+  const mate = spawnUnit(w, 'horde', 'melee', 1680);
+  const far = spawnUnit(w, 'horde', 'melee', 1900);
+  setStance(w, 'kingdom', 'attack');
+  setStance(w, 'horde', 'garrison');
+  mage.cd = 0;
+  run(w, 1.4);
+  assert.equal(knight.hp, knight.maxHp - STATS.mage.damage, 'full damage, armour ignored');
+  assert.ok(mate.hp < mate.maxHp, 'splash reached the neighbour');
+  assert.equal(far.hp, far.maxHp);
+});
+
+test('after the siege begins, buildings take more damage so stalemates end', () => {
+  const w = createWorld({ workers: 0 });
+  const b = w.buildings.horde;
+  damageBuilding(w, b, 100);
+  assert.equal(b.hp, b.maxHp - 100);
+  w.t = SIEGE_START + SIEGE_RAMP;
+  damageBuilding(w, b, 100);
+  assert.equal(b.hp, b.maxHp - 300);
 });

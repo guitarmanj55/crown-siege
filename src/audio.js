@@ -110,6 +110,14 @@ export function sfx(name, vol = 1) {
       noise(0.22, 0.16 * v, 260, 'lowpass');
       tone(90, 0.2, 'sine', 0.18 * v, 50);
       break;
+    case 'blast':
+      noise(0.25, 0.14 * v, 700, 'lowpass', 0.8, 0, 200);
+      tone(200, 0.2, 'sine', 0.14 * v, 70);
+      break;
+    case 'orb':
+      tone(420, 0.3, 'sine', 0.07 * v, 900);
+      noise(0.2, 0.04 * v, 1500, 'bandpass', 2, 0, 3000);
+      break;
     case 'cast':
       tone(300, 0.35, 'sine', 0.08 * v, 1200);
       break;

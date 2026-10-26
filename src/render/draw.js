@@ -46,6 +46,7 @@ function drawSky(ctx, cam, t) {
   const sunX = w * 0.66 - cam.x * cam.scale * 0.04;
   const sunY = cam.groundY - 95 * cam.scale;
   const r = 46 * cam.scale;
+  if (!Number.isFinite(sunX + sunY + r)) return; // a zero-sized frame while the window is resizing
   const sg = ctx.createRadialGradient(sunX, sunY, r * 0.2, sunX, sunY, r * 3);
   sg.addColorStop(0, 'rgba(255,214,140,0.9)');
   sg.addColorStop(0.3, 'rgba(255,170,100,0.35)');
@@ -285,6 +286,16 @@ function drawProjectiles(ctx, world, cam) {
   for (const p of world.projectiles) {
     const x = sx(cam, p.x), y = gy + p.y * s;
     if (x < -30 || x > cam.w + 30) continue;
+    if (p.kind === 'orb') {
+      const c = FACTIONS[p.faction].colors;
+      ctx.globalAlpha = 0.4; ctx.fillStyle = c.glow;
+      ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1; ctx.fillStyle = c.crystal;
+      ctx.beginPath(); ctx.arc(x, y, 3.6 * s, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x - s, y - s, 1.4 * s, 0, TAU); ctx.fill();
+      continue;
+    }
     const spear = p.from === 'ranged' && p.faction === 'horde';
     const len = (spear ? 16 : 10) * s;
     const dx = Math.cos(p.angle) * len, dy = Math.sin(p.angle) * len;

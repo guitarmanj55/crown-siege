@@ -62,6 +62,17 @@ export function fxEvent(fx, ev, cam, opts) {
       cam.shake = Math.max(cam.shake, 7);
       break;
     }
+    case 'blast': {
+      const color = ev.faction === opts.player ? '#9fe0ff' : '#c6ff7a';
+      burst(fx, ev.x, ev.y ?? -10, 16, { color, speed: 130, life: 0.5, size: 2.4 });
+      burst(fx, ev.x, ev.y ?? -10, 4, { color: 'rgba(90,80,90,0.6)', speed: 40, life: 0.7, size: 5, g: -30, kind: 'dust' });
+      fx.texts.push({ x: ev.x, y: 0, life: 0, max: 0.35, ring: true, color });
+      cam.shake = Math.max(cam.shake, 1.5);
+      break;
+    }
+    case 'siege':
+      fx.texts.push({ x: ev.x, y: -120, life: 0, max: 3, text: 'The walls begin to crack…', color: '#ffb36a' });
+      break;
     case 'win':
       for (let i = 0; i < 6; i++) burst(fx, ev.x + (Math.random() - 0.5) * 120, -40 - Math.random() * 120, 14, { color: i % 2 ? '#ff9a3a' : '#ffd34d', speed: 160, life: 1.2, size: 3, g: 60, kind: 'ember' });
       cam.shake = Math.max(cam.shake, 10);
