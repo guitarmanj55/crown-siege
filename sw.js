@@ -1,7 +1,7 @@
 /* Crown Siege service worker: plays offline once opened online.
    The shell is network-first so a new release arrives as soon as you're online; icons are cache-first.
    Bump CACHE for every release, and add new files to SHELL. */
-var CACHE = "crownsiege-v5";
+var CACHE = "crownsiege-v6";
 var SHELL = [
   "./",
   "index.html",
@@ -40,7 +40,7 @@ self.addEventListener("install", function(e){
 
 self.addEventListener("activate", function(e){
   e.waitUntil(caches.keys().then(function(keys){
-    return Promise.all(keys.filter(function(k){ return k !== CACHE; }).map(function(k){ return caches.delete(k); }));
+    return Promise.all(keys.filter(function(k){ return k !== CACHE && k.indexOf("crownsiege-") === 0; }).map(function(k){ return caches.delete(k); }));
   }).then(function(){ return self.clients.claim(); }));
 });
 
