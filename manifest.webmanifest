@@ -4,7 +4,7 @@
   "description": "Hold the keep. Topple the dark tower.",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "landscape",
   "background_color": "#1c1736",
   "theme_color": "#1c1736",
