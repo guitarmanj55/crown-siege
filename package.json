@@ -5,6 +5,7 @@
   "description": "Fantasy single-lane strategy game: Kingdom vs Horde, played as a home-screen web app.",
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "check": "node scripts/check.mjs"
   }
 }
